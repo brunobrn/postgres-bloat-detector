@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-host="panda-notifications-4d3e2afe.cexop9zvz2f9.us-east-1.rds.amazonaws.com"
+host=""
 dbname="panda_notifications"
 user="panda_notifications_dbapy"
 password="123456789"
