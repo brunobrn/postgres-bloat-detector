@@ -4,19 +4,21 @@ metadata:
   name: pg-py-aut-deployment
   namespace: pg-repack
   labels:
-    app: python
+    app: pg-py-automator
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: python
+      app: pg-py-automator
   template:
     metadata:
       labels:
-        app: python
+        app: pg-py-automator
     spec:
       containers:
-      - name: python
+      - name: pg-py-automator
         image: dlpco/postgres-py-automator
         ports:
         - containerPort: 80
+        command: ["python3"]
+        args: ["py_automator/sleep.py"]

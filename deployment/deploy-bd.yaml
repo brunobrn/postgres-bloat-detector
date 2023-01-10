@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-bd-deployment
+  namespace: pg-repack
+  labels:
+    app: postgres-py-automator
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: postgres-py-automator
+  template:
+    metadata:
+      labels:
+        app: postgres-py-automator
+    spec:
+      containers:
+      - name: postgres-py-automator
+        image: dlpco/postgres-fully-extension:14.4
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: db-postgres-py-automator
+                key: DATABASE_NAME
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-postgres-py-automator
+                key: DATABASE_PASSWORD
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-postgres-py-automator
+                key: DATABASE_USERNAME
+          - name: DATABASE_HOST
+            valueFrom:
+              secretKeyRef:
+                name: db-postgres-py-automator
+                key: DATABASE_HOST
