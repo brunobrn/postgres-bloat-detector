@@ -1,5 +1,6 @@
 import psycopg2
 from table_bloat import *
+from connections import *
 
 #exec functions
 create_type_oban_jobs()

@@ -1,30 +1,54 @@
-drop VIEW if exists dba.get_ddl_tables
--- revoke all on schema dba from dbapy_database_username;
-drop role if exists dbapy_database_username cascade;
-CREATE ROLE dbapy_database_username WITH
-  LOGIN
-  NOSUPERUSER
-  INHERIT
-  CREATEDB
-  CREATEROLE
-  NOREPLICATION
-  VALID UNTIL 'infinity';
+-- drop schema dba cascade
 
-GRANT SELECT ON table dba.tables to dbapy_database_username;
 
-GRANT SELECT ON ALL TABLES IN schema pix TO dbapy_database_username;
-GRANT SELECT ON ALL TABLES IN schema dba TO dbapy_database_username;
-GRANT SELECT ON ALL TABLES IN schema public TO dbapy_database_username;
+-- cRIAR ROLE VIA ANSIBLE
+-- drop role if exists dbapy_database_username cascade;
+-- CREATE ROLE dbapy_database_username WITH
+--   LOGIN
+--   NOSUPERUSER
+--   INHERIT
+--   CREATEDB
+--   CREATEROLE
+--   NOREPLICATION
+--   VALID UNTIL 'infinity';
 
-grant usage on schema pix to dbapy_database_username; -- criar grant automatico para qualquer owner
-grant usage on schema dba to dbapy_database_username;
-grant usage on schema public to dbapy_database_username;
+-- ALTER ROLE dbapy_database_username PASSWORD '123456';
+-- GRANT CREATE ON DATABASE panda_notifications TO dbapy_database_username;
+-- GRANT SELECT ON ALL TABLES IN schema pix TO dbapy_database_username;
+-- GRANT SELECT ON ALL TABLES IN schema public TO dbapy_database_username;
+-- GRANT SELECT ON ALL TABLES IN schema dba TO dbapy_database_username;
+-- GRANT SELECT ON TABLE dba.primary_keys TO dbapy_database_username;
+-- GRANT ALL ON TABLE dba.primary_keys TO dbapy_database_username;
+-- grant usage on schema pix to dbapy_database_username; -- criar grant automatico para qualquer owner
+-- grant usage on schema dba to dbapy_database_username;
+-- grant usage on schema public to dbapy_database_username;
+-- grant insert on dba.bloat_monitor to dbapy_database_username;
 
-ALTER ROLE dbapy_database_username PASSWORD '123456';
+
+CREATE SCHEMA IF NOT EXISTS dba;
+
+CREATE TABLE IF NOT EXISTS dba.bloat_monitor
+(
+    id bigint NOT NULL GENERATED  ALWAYS AS IDENTITY,
+	table_name varchar(100),
+	schema varchar(25),
+	size_original bigint,
+	size_k8s bigint,
+	percentage_diff numeric,
+	inserted_at timestamp without time zone NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE IF EXISTS dba.bloat_monitor OWNER to dbapy_database_username;
+
+CREATE TABLE IF NOT EXISTS dba.schema_migration
+(
+	migration_version integer
+);
+
+ALTER TABLE IF EXISTS dba.schema_migration OWNER to dbapy_database_username;
 
 ALTER ROLE dbapy_database_username SET search_path TO dba,public;
-
-
 
 -- FUNCTION: dba.oid2text(oid)
 
@@ -41,8 +65,7 @@ AS $BODY$
 	SELECT textin(regclassout($1));
 $BODY$;
 
-ALTER FUNCTION dba.oid2text(oid)
-    OWNER TO dbapy_database_username;
+ALTER FUNCTION dba.oid2text(oid) OWNER TO dbapy_database_username;
 
 -- FUNCTION: dba.get_storage_param(oid)
 
@@ -82,9 +105,7 @@ FROM (
     ) as t
 $BODY$;
 
-ALTER FUNCTION dba.get_storage_param(oid)
-    OWNER TO dbapy_database_username;
-
+ALTER FUNCTION dba.get_storage_param(oid) OWNER TO dbapy_database_username;
 
 -- Aggregate: array_accum;
 
@@ -98,7 +119,7 @@ CREATE OR REPLACE AGGREGATE dba.array_accum(anyelement) (
     MFINALFUNC_MODIFY = READ_ONLY
 );
 
- alter AGGREGATE  dba.array_accum(anyelement) OWNER to dbapy_database_username;
+alter AGGREGATE  dba.array_accum(anyelement) OWNER to dbapy_database_username;
 
 -- FUNCTION: dba.get_columns_for_create_as(oid)
 
@@ -121,8 +142,7 @@ WHERE attrelid = $1 AND attnum > 0 ORDER BY attnum
 ) AS COL
 $BODY$;
 
-ALTER FUNCTION dba.get_columns_for_create_as(oid)
-    OWNER TO dbapy_database_username;
+ALTER FUNCTION dba.get_columns_for_create_as(oid) OWNER TO dbapy_database_username;
 
 -- View: repack.primary_keys
 
@@ -141,12 +161,7 @@ CREATE OR REPLACE VIEW dba.primary_keys
           ORDER BY pg_index.indrelid, pg_index.indisprimary DESC, pg_index.indnatts, pg_index.indkey) tmp
   GROUP BY tmp.indrelid;
 
-ALTER TABLE dba.primary_keys
-    OWNER TO rds_superuser;
-
-GRANT SELECT ON TABLE dba.primary_keys TO dbapy_database_username;
-GRANT ALL ON TABLE dba.primary_keys TO dbapy_database_username;
-
+ALTER TABLE dba.primary_keys OWNER TO dbapy_database_username;
 
 -- View: dba.get_ddl_tables
 
@@ -194,30 +209,9 @@ CREATE OR REPLACE VIEW dba.get_ddl_tables
   AND (n.nspname <> ALL (ARRAY['pg_catalog'::name, 'information_schema'::name])) 
   AND n.nspname !~~ 'pg\_temp\_%'::text;
 
-ALTER TABLE dba.get_ddl_tables
-    OWNER TO dbapy_database_username;
-
-GRANT ALL ON TABLE dba.get_ddl_tables TO dbapy_database_username;
-
-ALTER view dba.get_ddl_tables OWNER TO dbapy_database_username;
-
+ALTER VIEW dba.get_ddl_tables OWNER TO dbapy_database_username;
 
 ---------------
 
-create schema dba;
 
-CREATE TABLE dba.bloat_monitor
-(
-    id bigint NOT NULL GENERATED  ALWAYS AS IDENTITY,
-	table_name varchar(100),
-	schema varchar(25),
-	size_original bigint,
-	size_k8s bigint,
-	percentage_diff numeric,
-	inserted_at timestamp without time zone NOT NULL,
-    PRIMARY KEY (id)
-);
-ALTER TABLE IF EXISTS dba.bloat_monitor
-    OWNER to dbapy_database_username;
-
-grant insert on dba.bloat_monitor to dbapy_database_username;
+insert into dba.schema_migration(migration_version) values (1);

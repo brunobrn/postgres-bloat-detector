@@ -1,5 +1,6 @@
 import psycopg2
 from config import *
+from connections import *
 
 # Create type oban_jobs_state to fix dependencie error.
 def create_type_oban_jobs():
@@ -32,8 +33,11 @@ def create_type_oban_jobs():
         if conn is not None:
             conn.close()
 
-if table == 'oban_jobs':
-    create_type_oban_jobs()
+create_type_oban_jobs()
+# if table == 'oban_jobs':
+#     create_type_oban_jobs()
+# else:
+#     pass
 
 ### ----------------------------------- ###
 
@@ -198,9 +202,10 @@ def get_size_diff_rds():
         MAIN_TABLE_SIZE = cur.fetchone()[0]
         print('The size of %s table in bytes is: %s' % (table, MAIN_TABLE_SIZE))
 
-        # End transactions        
+        # End transactions    
+        cur.close()    
         return MAIN_TABLE_SIZE
-        cur.close()
+
     
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -237,8 +242,8 @@ def get_size_diff_k8s():
         print('The size of %s table in bytes is: %s' % (DDL_TABLE[1], K8S_TABLE_SIZE))
 
         # End transactions     
-        return K8S_TABLE_SIZE
         cur.close()
+        return K8S_TABLE_SIZE
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -292,8 +297,8 @@ def get_tables():
                         AND n.nspname !~ '^pg_toast'
                         AND n.nspname <> 'information_schema'
                         AND c.relpersistence = 'p'
-                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 > 1
-                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 < 1000       
+                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 >= 0
+                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 < 1       
                         AND c.relname not like '%_p%_w%'
                     AND pg_catalog.pg_table_is_visible(c.oid)
                     ORDER BY 1;''') 
@@ -303,8 +308,8 @@ def get_tables():
         TABLES_NAME = cur.fetchall()
         
         # End transacations
-        return TABLES_NAME
         cur.close()
+        return TABLES_NAME
 
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -313,3 +318,30 @@ def get_tables():
             conn.close()
 
 ### ----------------------------------- ###
+
+# Get the name of schema inn the database
+def get_schemas():
+    try:
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        cur = conn.cursor()
+        cur.execute(SET_SEARCH_PATH)
+
+        # SQL commands   
+        GET_SCHEMAS = ('''SELECT n.nspname AS "Name"
+                            FROM pg_catalog.pg_namespace n
+                                WHERE n.nspname !~ '^pg_' 
+                            AND n.nspname not in ('information_schema','dba','cron','partman','pghero','repack','monitoring');''') 
+      
+        # Execute commands
+        cur.execute(GET_SCHEMAS)
+        SCHEMAS_NAME = cur.fetchall()
+        
+        # End transacations
+        cur.close()
+        return SCHEMAS_NAME
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
