@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dba-pg-tools-db-service
+  namespace: dba-pg-tools
+  labels:
+    app: dba-pg-tools
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+    external-dns.alpha.kubernetes.io/hostname: "dba-pg-tools.homolog.stone.credit"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: dba-pg-tools
