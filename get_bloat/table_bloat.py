@@ -48,15 +48,15 @@ def create_fdw_k8s():
         cur = conn.cursor()
         
         # SQL Commands      
-        DDL_CREATE_SERVER_FDW = ('''CREATE SERVER if not exists foreigndb_fdw 
+        DDL_CREATE_SERVER_FDW = ('''CREATE SERVER if not exists %s 
                                         FOREIGN DATA WRAPPER postgres_fdw 
-                                            OPTIONS (host '%s', port '%s', dbname '%s');''' % (host, port, dbname))
+                                            OPTIONS (host '%s', port '%s', dbname '%s');''' % (dbname, host, port, dbname))
 
         DDL_USER_MAPPING_FDW = ('''CREATE USER MAPPING if not exists FOR dbapy_database_username 
-                                    SERVER foreigndb_fdw 
-                                        OPTIONS (user '%s', password '%s');''' % (user, password))
+                                    SERVER %s 
+                                        OPTIONS (user '%s', password '%s');''' % (dbname, user, password))
 
-        DDL_GRANT_FDW = ('''GRANT USAGE ON FOREIGN SERVER foreigndb_fdw TO %s;''' % (user))
+        DDL_GRANT_FDW = ('''GRANT USAGE ON FOREIGN SERVER %s TO %s;''' % (dbname, user))
 
         DDL_CREATE_SCHEMA_DBA = ('''CREATE SCHEMA if not exists dba;''')
 
@@ -92,7 +92,7 @@ def import_fdw_k8s():
         DROP_FOREIGN_TABLE = ('''DROP FOREIGN TABLE IF EXISTS fdw.%s''' % (table))
 
         IMPORT_FOREIGN_TABLE = ('''IMPORT FOREIGN SCHEMA  %s LIMIT TO (%s) 
-                                    FROM SERVER foreigndb_fdw INTO fdw;''' % (schema, table))
+                                    FROM SERVER %s INTO fdw;''' % (schema, table, dbname))
 
         # Execute Commands
         cur.execute(DROP_FOREIGN_TABLE)
@@ -297,8 +297,8 @@ def get_tables():
                         AND n.nspname !~ '^pg_toast'
                         AND n.nspname <> 'information_schema'
                         AND c.relpersistence = 'p'
-                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 >= 0
-                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 < 1       
+                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 > 0
+                        AND pg_catalog.pg_table_size(c.oid)/1024/1024 < 500
                         AND c.relname not like '%_p%_w%'
                     AND pg_catalog.pg_table_is_visible(c.oid)
                     ORDER BY 1;''') 

@@ -7,13 +7,14 @@ from table_bloat import get_tables
 
 def exec_automation():
     TABLES_NAME = get_tables()
+    call(["python", "migration.py"])
 
     if len(TABLES_NAME) >= 1 and table == 'all':
-        for tables in TABLES_NAME:
-            call(["python", "get_bloat/exec_table_bloat.py", schema, tables[0]])
+        for tables in TABLES_NAME:       
+            call(["python", "exec_table_bloat.py", schema, tables[0]])
 
     elif len(TABLES_NAME) >= 1 and table != 'all':
-        call(["python", "get_bloat/exec_table_bloat.py", schema, table])
+        call(["python", "exec_table_bloat.py", schema, table])
 
     else:
         print('No tables to analyze')

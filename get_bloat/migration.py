@@ -52,10 +52,14 @@ def exec_migration():
 def check_execute():
     if get_migration_version() == False:
         exec_migration()
-        print("MIGRATION EXECUTADA")
+        print('-------------------------------------------------------------') 
+        print("MIGRATION EXECUTADA COM SUCESSO")
+        print('-------------------------------------------------------------') 
         return True
     else:
-        print("migration já instalada")
+        print('-------------------------------------------------------------') 
+        print("A MIGRATION JÁ ESTÁ CONFIGURADA")
+        print('-------------------------------------------------------------') 
         return False
 
 # finally, execute the program

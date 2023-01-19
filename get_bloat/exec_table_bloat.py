@@ -39,6 +39,6 @@ def insert_bloat_monitor():
     finally:
         if conn is not None:
             conn.close()
-            print('-------------------------------------------------------------') # Remove after tests
+            print('-------------------------------------------------------------') 
 
 insert_bloat_monitor()
