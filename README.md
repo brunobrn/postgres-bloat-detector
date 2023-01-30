@@ -1,1 +1,1 @@
-# postgres-py-automator
+# dba-pg-tools
