@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: restart-dba-pg-tools-db
+  namespace: dba-pg-tools
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: restart-dba-pg-tools-db
+subjects:
+  - kind: ServiceAccount
+    name: restart-dba-pg-tools-db
+    namespace: dba-pg-tools

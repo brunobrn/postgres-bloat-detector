@@ -1,0 +1,1 @@
+UPDATE dba.schema_migration SET migration_version = 1 WHERE migration_version = 0;
