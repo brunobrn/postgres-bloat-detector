@@ -73,7 +73,7 @@ spec:
             command: ["python3"]
             args: ["get_bloat_tables.py", "public", "all"]
           restartPolicy: Never
-  # schedule: "0 14 * * *"
-  schedule: "00 01 * * *"
+  schedule: "0 14 * * *"
+  # schedule: "*/10 * * * *"
  
  

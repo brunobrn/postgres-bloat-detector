@@ -50,17 +50,11 @@ def exec_migration():
 
 # function to execute the migration
 def check_execute():
-    if get_migration_version() == False:
         exec_migration()
         print('-------------------------------------------------------------') 
-        print("MIGRATION EXECUTADA COM SUCESSO")
+        print("MIGRATION CHECK/EXEC WITH SUCCESS")
         print('-------------------------------------------------------------') 
         return True
-    else:
-        print('-------------------------------------------------------------') 
-        print("A MIGRATION JÁ ESTÁ CONFIGURADA")
-        print('-------------------------------------------------------------') 
-        return False
 
 # finally, execute the program
 check_execute()

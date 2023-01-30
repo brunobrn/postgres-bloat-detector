@@ -5,7 +5,7 @@ from connections import *
 # Create type oban_jobs_state to fix dependencie error.
 def create_type_oban_jobs():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
 
         # SQL Commands
@@ -44,7 +44,7 @@ create_type_oban_jobs()
 # Create FDW server on k8s host to copy and analyse data.
 def create_fdw_k8s():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
         
         # SQL Commands      
@@ -52,7 +52,7 @@ def create_fdw_k8s():
                                         FOREIGN DATA WRAPPER postgres_fdw 
                                             OPTIONS (host '%s', port '%s', dbname '%s');''' % (dbname, host, port, dbname))
 
-        DDL_USER_MAPPING_FDW = ('''CREATE USER MAPPING if not exists FOR dbapy_database_username 
+        DDL_USER_MAPPING_FDW = ('''CREATE USER MAPPING if not exists FOR dba_pg_tools_username 
                                     SERVER %s 
                                         OPTIONS (user '%s', password '%s');''' % (dbname, user, password))
 
@@ -85,7 +85,7 @@ def create_fdw_k8s():
 # Import FDW table in k8s schema.
 def import_fdw_k8s():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
 
         # SQL Commands
@@ -114,7 +114,7 @@ def import_fdw_k8s():
 # Get the table DDL commands to create table in k8s exactly like main database
 def get_table_ddl():
     try:
-        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, application_name=app_name)
         cur = conn.cursor()
         cur.execute(SET_SEARCH_PATH)
 
@@ -156,7 +156,7 @@ DDL_TABLE = get_table_ddl()
 # Exec the copy to create table in k8s with the same data of main database
 def copy_table_to_k8s():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
 
         # SQL Commands
@@ -181,7 +181,7 @@ def copy_table_to_k8s():
 # Get the size of main database table
 def get_size_diff_rds():
     try:
-        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, application_name=app_name)
         cur = conn.cursor()
         cur.execute(SET_SEARCH_PATH)
         
@@ -218,7 +218,7 @@ def get_size_diff_rds():
 # Get the size of k8s database table
 def get_size_diff_k8s():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
         
         # SQL Commands
@@ -256,7 +256,7 @@ def get_size_diff_k8s():
 # Drop tables on k8s size to save storage
 def drop_table_bloat():
     try:
-        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s)
+        conn = psycopg2.connect(dbname=dbname_k8s, user=user_k8s, password=password_k8s, host=host_k8s, port=port_k8s, application_name=app_name)
         cur = conn.cursor()
 
         # SQL Commands
@@ -283,7 +283,7 @@ def drop_table_bloat():
 # Get the name of tables in the schema
 def get_tables():
     try:
-        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, application_name=app_name)
         cur = conn.cursor()
         cur.execute(SET_SEARCH_PATH)
 
@@ -322,7 +322,7 @@ def get_tables():
 # Get the name of schema inn the database
 def get_schemas():
     try:
-        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, application_name=app_name)
         cur = conn.cursor()
         cur.execute(SET_SEARCH_PATH)
 

@@ -20,7 +20,7 @@ drop_table_bloat()
 # Insert data on monitoring table
 def insert_bloat_monitor():
     try:
-        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port, application_name=app_name)
         cur = conn.cursor()
         
         # SQL Commands

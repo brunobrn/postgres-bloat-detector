@@ -15,4 +15,3 @@ dbname_k8s      = os.environ['POSTGRES_K8S_DB']
 user_k8s        = os.environ['POSTGRES_K8S_USER']
 password_k8s    = os.environ['POSTGRES_K8S_PASSWORD']
 port_k8s        = os.environ['POSTGRES_K8S_PORT']
-
